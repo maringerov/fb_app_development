@@ -1,5 +1,6 @@
 <?
 require_once 'config.php';
+include 'header.php';
 
 // Get user profile data
 $facebook = fbLogin ();
@@ -34,3 +35,5 @@ if ($facebook) {
     </form>
   </div>
 </div>
+
+<? include 'footer.php'; ?>
