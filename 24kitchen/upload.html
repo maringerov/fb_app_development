@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>24Kitchen Summer Cook Off</title>
+  <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-default" role="navigation">
+    <div class"container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="index.html" title="Home">24KITCHEN</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="gallery.html" title="All Recipes">Recipes</a></li>
+        <li><a href="chefs.html" title="Chefs">Chefs</a></li>
+        <li><a href="upload.html" title="Upload a recipe">Upload</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <h1>Summer Cook Off</h1>
+    <!-- Header -->
+    <div class="header">
+      <a href="#" class="btn btn-default btn-lg challenge">This week's challenge</a>
+      <a href="#"><img src="http://dummyimage.com/700x300/4d494d/686a82.gif&text=placeholder+image" alt="placeholder+image"></a>
+    </div>
+
+    <!-- Main Content -->
+
+    <h2>Upload your recipe</h2>
+    <div class="upload-form">
+      <form role="form">
+        <div class="form-group">
+          <label for="recipeName">Recipe Name</label>
+          <input type="email" class="form-control" id="recipeName" placeholder="Enter recipe name">
+        </div>
+        <label for="selectRecipe">Which recipe you are preparing?</label>
+        <select class="form-control" id="selectRecipe">
+          <option>Recipe 1</option>
+          <option>Recipe 2</option>
+          <option>Recipe 3</option>
+          <option>Recipe 4</option>
+          <option>Recipe 5</option>
+        </select>
+        <div class="form-group">
+          <label for="ingredients">Ingredients</label>
+          <textarea class="form-control" rows="8" id="ingredients"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="fullRecipe">Your Recipe</label>
+          <textarea class="form-control" rows="8" id="fullRecipe"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="uploadImg">Upload your image</label>
+          <input type="file" id="uploadImg">
+          <p class="help-block">The image you upload must be 800X600 pixels at least.</p>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox"> I agree with the <a href="#">Terms and Conditions</a>.
+          </label>
+        </div>
+        <button type="submit" class="btn btn-default btn-lg">Upload</button>
+      </form>
+    </div> 
+
+    <!-- footer -->
+    <footer>
+      <p>&copy; 2014 24Kitchen All rights reserved. <a href="#">Terms and Conditions</a></p>
+    </footer>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>
