@@ -12,14 +12,18 @@
  * @const APP_ID INT - The app ID value supplied by Facebook
  * @CONST APP_SECRET STRING - The app secret value supplied by Facebook
  * @CONST CANVAS_PAGE STRING - The homepage of the app on Facebook
- * @param default_scope ARRAY - An array of comma-separated values that defines the permissions that the application needs to function properly
+ *
+ * @param
+ *        	default_scope ARRAY - An array of comma-separated values that defines the permissions that the application needs to function properly
  */
 define ( 'APP_ID', '1485634284983815' );
 define ( 'APP_SECRET', 'e7c1c001c41bc9793d539ea0aa9a9bea' );
 define ( 'CANVAS_PAGE', 'https://apps.facebook.com/' . APP_ID );
-$default_scope = array("email, publish_stream");
+$default_scope = array (
+		"email, publish_stream" 
+);
 // Implode the scope and turn it into a comma-separated string of values
-$scope = implode(", ", $default_scope);
+$scope = implode ( ", ", $default_scope );
 
 /**
  * Main Facebook functions
@@ -44,6 +48,13 @@ function fbLogin() {
 	/**
 	 * if (isset ( $_GET ['code'] )) {
 	 * print ('<script> top.location.href=\'' .
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
+	 *
 	 *
 	 *
 	 *
@@ -101,4 +112,58 @@ function fbLogin() {
 	}
 	// Return the facebook variable
 	return $facebook;
+}
+
+/**
+ * Database Settings
+ *
+ * Define the settings used to connect to the MySQL database storing the app's data
+ */
+/**
+ * $db_name = "bgmeals";
+ * $db_host = "localhost";
+ * $db_username = "root";
+ * $db_password = "root";
+ */
+$db_name = 'bgmeals';
+$db_host = 'bgmeals.sekwoia.org';
+$db_username = 'bgmeals';
+$db_password = 'bulgarianmeals';
+
+/**
+ * Function to connect to the database with PDO
+ *
+ * @PARAM $query STRING - The query that shall be passed to the MySQL
+ */
+function db_query($query, $params) {
+	GLOBAL $db_name, $db_host, $db_username, $db_password;
+	
+	try {
+		$conn = new PDO ( "mysql:host=$db_host;dbname=$db_name", $db_username, $db_password );
+		
+		// Prepare MySQL query
+		$q = $conn->prepare ( $query );
+		
+		// Execute query
+		$q->execute ( $params );
+		$q->setFetchMode ( PDO::FETCH_ASSOC );
+		
+		while ( $r = $q->fetch () ) {
+			$id = $conn->lastInsertId ();
+			if ($id > 0) {
+				$r ["last_insert_id"] = $conn->lastInsertId ();
+			}
+			$row[] = $r;
+			// echo sprintf ( '%s <br/>', print_R ( $r ) );
+		}
+	
+		$id = $conn->lastInsertId ();
+		if ($id > 0) {
+			$row ["last_insert_id"] = $conn->lastInsertId ();
+		}
+		return $row;
+	} catch ( PDOException $pe ) {
+		die ( "Could not connect to the database $db_name :" . $pe->getMessage () );
+		return FALSE;
+	}
 }

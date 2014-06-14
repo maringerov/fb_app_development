@@ -7,6 +7,7 @@ $facebook = fbLogin ();
 if ($facebook) {
 	// Do something
 }
+echo db_query('SELECT * from recipes', array(''));
 ?>
 <div><?=$_REQUEST["content"];?></div>
 <a href='index.php'>Go back to homepage</a>
