@@ -58,16 +58,20 @@ foreach ( $row as $recipe ) {
 			</ul>
 			<!-- Tab Content -->
 			<div class="tab-content">
-      <?
-						// Go through each type and list the recipes in a corresponding heading
-						foreach ( $recipes as $recipe_type => $recipe_list ) {
-							?>
+			<?
+			// Go through each type and list the recipes in a corresponding heading
+			foreach ( $recipes as $recipe_type => $recipe_list ) {
+				?>
         <div class="tab-pane fade in active" id="<?=$recipe_type; ?>">
+                          <?
+				$i = 0;
+				?>
+							<!--  Start first group -->
 					<div class="row">
-                  <?
-							foreach ( $recipe_list as $recipe ) {
-								?>
-            <div class="col-sm-4">
+                          <?
+				foreach ( $recipe_list as $recipe ) :
+					?>
+                           <div class="col-sm-4">
 							<div class="entry">
 								<a href="recipe-post.php?id=<?=$recipe["recipe_id"]; ?>"><img
 									class="img-rounded recipe-photo"
@@ -78,19 +82,27 @@ foreach ( $row as $recipe ) {
 								</p>
 								<p>
 									<a href="upload.php?action=edit&id=<?=$recipe["recipe_id"]; ?>">Edit</a>
-									<a href="upload.php?action=delete&id=<?=$recipe["recipe_id"]; ?>">Delete</a>
+									<a
+										href="upload.php?action=delete&id=<?=$recipe["recipe_id"]; ?>">Delete</a>
 								</p>
 							</div>
 						</div>
-            <? } ?>
-
-
+                          							<?
+					// Check if count divided by 3 has no remainder
+					if ((++ $i % 3) == 0) :
+						?>
+                                                    </div>
+					<!-- start new group -->
+					<div class="row">
+                          
+                          <?php endif ?>
+                          <?php endforeach ?>
+                          
+                          <!-- end last group -->
 					</div>
-
 				</div>
-        <? } ?>
+<? } ?>
               </div>
-
 		</div>
 
 		<h2>Join the competition</h2>

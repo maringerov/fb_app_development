@@ -10,6 +10,7 @@ CREATE TABLE recipes(
 	);
 
 CREATE TABLE recipe_types(
+	id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
 	recipe_name VARCHAR(255) NOT NULL,
 	recipe_type ENUM('salad','starter','main','dessert') NOT NULL
 	);

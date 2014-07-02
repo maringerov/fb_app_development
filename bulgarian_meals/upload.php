@@ -6,9 +6,20 @@ $facebook = fbLogin ();
 switch ($_REQUEST ["action"]) {
 	
 	case "edit" :
+		$recipeID = $_REQUEST ["id"];
+		
+		$mysql_query = "SELECT * FROM recipes WHERE recipe_id=?";
+		$mysql_query_params = array (
+				$recipeID 
+		);
+		$row = db_query ( $mysql_query, $mysql_query_params );
+		// Fetch the data from the form or from the db
+		$recipeName = ($_POST ["selectRecipe"]) ? ($recipeName = $_POST ["selectRecipe"]) : ($recipeName = $row [0] ["recipe_name"]);
+		$ingredients = ($_POST ["ingredients"]) ? ($ingredients = $_POST ["ingredients"]) : ($ingredients = $row [0] ["recipe_ingredients"]);
+		$fullRecipe = ($_POST ["fullRecipe"]) ? ($fullRecipe = $_POST ["fullRecipe"]) : ($fullRecipe = $row [0] ["recipe_text"]);
+		($_POST ["t&cCheckbox"]) ? ($agreedToTerms = 1) : ($agreedToTerms = 0);
 		
 		// Process everything below if form is posted
-		$recipeID = $_REQUEST["id"];
 		if (array_key_exists ( 'upload', $_POST )) {
 			if ($facebook) {
 				$user_profile = $facebook->api ( '/me' );
@@ -16,12 +27,6 @@ switch ($_REQUEST ["action"]) {
 			// Make a user name by taking user's first and last names from their Facebook profile
 			$user_name = $user_profile ["first_name"] . " " . $user_profile ["last_name"];
 			$user_id = $user_profile ["id"];
-			
-			// Fetch the data from the form
-			$recipeName = $_POST ["selectRecipe"];
-			$ingredients = $_POST ["ingredients"];
-			$fullRecipe = $_POST ["fullRecipe"];
-			($_POST ["t&cCheckbox"]) ? ($agreedToTerms = 1) : ($agreedToTerms = 0);
 			
 			// Check if all input has been filled in
 			$errorMessages = array ();
@@ -49,7 +54,8 @@ switch ($_REQUEST ["action"]) {
 						$fullRecipe,
 						$user_id,
 						$user_name,
-				$recipeID);
+						$recipeID 
+				);
 				$success = db_query ( $mysql_query, $mysql_query_params );
 			}
 			// If $success is true, try to redirect to the correct recipe page
@@ -61,26 +67,31 @@ switch ($_REQUEST ["action"]) {
 		break;
 	
 	case "delete" :
+		$recipeID = $_REQUEST ["id"];
 		
 		// Delete the data from the db
-		if ($_REQUEST ["recipeID"]) {
+		if ($recipeID > 0) {
 			
 			// Check if the recipe exists in the db first
-			$mysql_query = SPRINTF ( "SELECT * from recipes WHERE id=%d", $_REQUEST ["recipeID"] );
-			$mysql_res = mysql_query ( $mysql_query );
+			$mysql_query = "SELECT * FROM recipes WHERE recipe_id=?";
+			$mysql_query_params = array (
+					$recipeID 
+			);
+			$row = db_query ( $mysql_query, $mysql_query_params );
 			
-			if (num_rows ( $mysql_res )) {
+			if (count ( $row ) > 0) {
 				
 				// Delete it
-				$mysql_query = "DELETE FROM recipes WHERE id=?)";
+				$mysql_query = "DELETE FROM recipes WHERE recipe_id=?";
 				$mysql_query_params = array (
 						$recipeID 
 				);
-				$success = db_query ( $mysql_query, $mysql_query_params );
+				$result = db_query ( $mysql_query, $mysql_query_params );
 				
-				// If $success is true, try to redirect to the correct recipe page
-				if ($success) {
+				// If result is null, try to redirect to the correct recipe page
+				if (! $result) {
 					header ( "Location: gallery.php " );
+					;
 				}
 			}
 		}
@@ -262,8 +273,8 @@ switch ($_REQUEST ["action"]) {
     </div>
 			<form role="form" id="form" name="form" method="post" action=""
 				enctype="multipart/form-data">
-				<input type="hidden" name="action" value=""/>
-				<input type="hidden" name="id" value="<?=$_REQUEST["id"]; ?>"/>
+				<input type="hidden" name="action" value="" /> <input type="hidden"
+					name="id" value="<?=$_REQUEST["id"]; ?>" />
 								<?
 								// Get all recipes
 								$mysql_query = "SELECT * FROM recipe_types";
