@@ -51,8 +51,8 @@ foreach ( $row as $recipe ) {
 		<div>
 			<!-- Nav Tabs -->
 			<ul class="nav nav-tabs nav-justified">
-				<li class="active"><a href="#starters" data-toggle="tab">Starters</a></li>
-				<li><a href="#salads" data-toggle="tab">Salads</a></li>
+				<li class="active"><a href="#starter" data-toggle="tab">Starters</a></li>
+				<li><a href="#salad" data-toggle="tab">Salads</a></li>
 				<li><a href="#main" data-toggle="tab">Main Courses</a></li>
 				<li><a href="#dessert" data-toggle="tab">Desserts</a></li>
 			</ul>
