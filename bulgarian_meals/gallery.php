@@ -78,7 +78,7 @@ foreach ( $row as $recipe ) {
 								</p>
 								<p>
 									<a href='upload.php?action=edit&id="recipe_id"'>Edit</a>
-									<a href='upload.php?action=delite&id="recipe_id"'>Delete</a>
+									<a href='upload.php?action=delete&id="recipe_id"'>Delete</a>
 								</p>
 							</div>
 						</div>
