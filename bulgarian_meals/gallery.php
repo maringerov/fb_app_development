@@ -51,8 +51,8 @@ foreach ( $row as $recipe ) {
 		<div>
 			<!-- Nav Tabs -->
 			<ul class="nav nav-tabs nav-justified">
-				<li class="active"><a href="#salad" data-toggle="tab">Salads</a></li>
-				<li><a href="#starter" data-toggle="tab">Starters</a></li>
+				<li class="active"><a href="#starters" data-toggle="tab">Starters</a></li>
+				<li><a href="#salads" data-toggle="tab">Salads</a></li>
 				<li><a href="#main" data-toggle="tab">Main Courses</a></li>
 				<li><a href="#dessert" data-toggle="tab">Desserts</a></li>
 			</ul>
@@ -76,29 +76,15 @@ foreach ( $row as $recipe ) {
 									<a href="recipe-post.php?id=<?=$recipe["recipe_id"]; ?>"><?=$recipe["recipe_name"]; ?></a><br>by
 									<a href="https://facebook.com/<?=$recipe["fb_id"]; ?>"><?=$recipe["fb_user_name"]; ?></a>
 								</p>
+								<p>
+									<a href='upload.php?action=edit&id="recipe_id"'>Edit</a>
+									<a href='upload.php?action=delite&id="recipe_id"'>Delete</a>
+								</p>
 							</div>
 						</div>
             <? } ?>
-            <div class="col-sm-4">
-							<div class="entry">
-								<a href="#"><img class="img-rounded recipe-photo"
-									src="http://dummyimage.com/300x350/4d494d/686a82.gif&text=placeholder+image"
-									alt="placeholder+image"></a>
-								<p>
-									<a href="#">Recipe Name</a><br>by <a href="#">User Name</a>
-								</p>
-							</div>
-						</div>
-						<div class="col-sm-4">
-							<div class="entry">
-								<a href="#"><img class="img-rounded recipe-photo"
-									src="http://dummyimage.com/300x350/4d494d/686a82.gif&text=placeholder+image"
-									alt="placeholder+image"></a>
-								<p>
-									<a href="#">Recipe Name</a><br>by <a href="#">User Name</a>
-								</p>
-							</div>
-						</div>
+
+
 					</div>
 
 				</div>
