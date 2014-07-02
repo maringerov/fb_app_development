@@ -77,8 +77,8 @@ foreach ( $row as $recipe ) {
 									<a href="https://facebook.com/<?=$recipe["fb_id"]; ?>"><?=$recipe["fb_user_name"]; ?></a>
 								</p>
 								<p>
-									<a href='upload.php?action=edit&id="recipe_id"'>Edit</a>
-									<a href='upload.php?action=delete&id="recipe_id"'>Delete</a>
+									<a href="upload.php?action=edit&id=<?=$recipe["recipe_id"]; ?>">Edit</a>
+									<a href="upload.php?action=delete&id=<?=$recipe["recipe_id"]; ?>">Delete</a>
 								</p>
 							</div>
 						</div>

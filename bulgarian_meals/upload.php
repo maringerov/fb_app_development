@@ -3,126 +3,285 @@ require_once ('config.php');
 // Get user profile data
 $facebook = fbLogin ();
 
-// Process everything below if form is posted
-if (array_key_exists ( 'upload', $_POST )) {
-	if ($facebook) {
-		$user_profile = $facebook->api ( '/me' );
-	}
-	// Make a user name by taking user's first and last names from their Facebook profile
-	$user_name = $user_profile ["first_name"] . " " . $user_profile ["last_name"];
-	$user_id = $user_profile ["id"];
+switch ($_REQUEST ["action"]) {
 	
-	// Fetch the data from the form
-	$recipeName = $_POST ["selectRecipe"];
-	$ingredients = $_POST ["ingredients"];
-	$fullRecipe = $_POST ["fullRecipe"];
-	$uploadImg = $_FILES ["uploadImg"];
-	($_POST ["t&cCheckbox"]) ? ($agreedToTerms = 1) : ($agreedToTerms = 0);
-	
-	// Check if all input has been filled in
-	$errorMessages = array ();
-	
-	if (empty ( $recipeName )) {
-		$errorMessages [] = "Please select the recipe you would like to upload.";
-	}
-	
-	if (empty ( $ingredients )) {
-		$errorMessages [] = "Please type in all ingredients needed to prepare the recipe with.";
-	}
-	
-	if (empty ( $fullRecipe )) {
-		$errorMessages [] = "Please type the full recipe.";
-	}
-	
-	if (! $_FILES ["uploadImg"]) {
-		$errorMessages [] = "An image is required to post your recipe.";
-	}
-	
-	if ($agreedToTerms == 0) {
-		$errorMessages [] = "Please read the terms and conditions and tick the relevant box before continuing.";
-	}
-	
-	// Setup file upload
-	if (array_key_exists ( 'uploadImg', $_FILES )) {
-		// define constant for upload folder
-		define ( 'UPLOAD_DIR', 'img_uploads/' );
-		// replace any spaces in original filename with underscores
-		// at the same time, assign to a simpler variable
-		$file = str_replace ( ' ', '_', $_FILES ['uploadImg'] ['name'] );
-		// create an array of permitted MIME types
-		$permitted = array (
-				'image/gif',
-				'image/jpeg',
-				'image/pjpeg',
-				'image/png' 
-		);
-		// begin by assuming the file is unacceptable
-		$typeOK = false;
+	case "edit" :
 		
-		// check that file is of an permitted MIME type
-		foreach ( $permitted as $type ) {
-			if ($type == $_FILES ['uploadImg'] ['type']) {
-				$typeOK = true;
-				break;
+		// Process everything below if form is posted
+		if (array_key_exists ( 'upload', $_POST )) {
+			if ($facebook) {
+				$user_profile = $facebook->api ( '/me' );
+			}
+			// Make a user name by taking user's first and last names from their Facebook profile
+			$user_name = $user_profile ["first_name"] . " " . $user_profile ["last_name"];
+			$user_id = $user_profile ["id"];
+			
+			// Fetch the data from the form
+			$recipeName = $_POST ["selectRecipe"];
+			$ingredients = $_POST ["ingredients"];
+			$fullRecipe = $_POST ["fullRecipe"];
+			$uploadImg = $_FILES ["uploadImg"];
+			($_POST ["t&cCheckbox"]) ? ($agreedToTerms = 1) : ($agreedToTerms = 0);
+			
+			// Check if all input has been filled in
+			$errorMessages = array ();
+			
+			if (empty ( $recipeName )) {
+				$errorMessages [] = "Please select the recipe you would like to upload.";
+			}
+			
+			if (empty ( $ingredients )) {
+				$errorMessages [] = "Please type in all ingredients needed to prepare the recipe with.";
+			}
+			
+			if (empty ( $fullRecipe )) {
+				$errorMessages [] = "Please type the full recipe.";
+			}
+			
+			if (! $_FILES ["uploadImg"]) {
+				$errorMessages [] = "An image is required to post your recipe.";
+			}
+			
+			if ($agreedToTerms == 0) {
+				$errorMessages [] = "Please read the terms and conditions and tick the relevant box before continuing.";
+			}
+			
+			// Setup file upload
+			if (array_key_exists ( 'uploadImg', $_FILES )) {
+				// define constant for upload folder
+				define ( 'UPLOAD_DIR', 'img_uploads/' );
+				// replace any spaces in original filename with underscores
+				// at the same time, assign to a simpler variable
+				$file = str_replace ( ' ', '_', $_FILES ['uploadImg'] ['name'] );
+				// create an array of permitted MIME types
+				$permitted = array (
+						'image/gif',
+						'image/jpeg',
+						'image/pjpeg',
+						'image/png' 
+				);
+				// begin by assuming the file is unacceptable
+				$typeOK = false;
+				
+				// check that file is of an permitted MIME type
+				foreach ( $permitted as $type ) {
+					if ($type == $_FILES ['uploadImg'] ['type']) {
+						$typeOK = true;
+						break;
+					}
+				}
+				
+				if ($typeOK) {
+					switch ($_FILES ['uploadImg'] ['error']) {
+						case 0 :
+							// $username would normally come from a session variable
+							$username = $user_id;
+							// if the user's subfolder doesn't exist yet, create it
+							if (! is_dir ( UPLOAD_DIR . $username )) {
+								mkdir ( UPLOAD_DIR . $username );
+							}
+							// check if a file of the same name has been uploaded
+							if (! file_exists ( UPLOAD_DIR . $username . '/' . $file )) {
+								// move the file to the upload folder and rename it
+								$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $file );
+								$image_location = UPLOAD_DIR . $username . '/' . $file;
+							} else {
+								// get the date and time
+								ini_set ( 'date.timezone', 'Europe/London' );
+								$now = date ( 'Y-m-d-His' );
+								$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $now . $file );
+								$image_location = UPLOAD_DIR . $username . '/' . $now . $file;
+							}
+							if (! $success) {
+								$errorMessages [] = "Error uploading $file. Please try again.";
+							}
+							break;
+						case 3 :
+							$errorMessages [] = "Error uploading $file. Please try again.";
+						default :
+							$errorMessages [] = "System error uploading $file. Contact webmaster.";
+					}
+				} elseif ($_FILES ['uploadImg'] ['error'] == 4) {
+					$errorMessages [] = 'No file selected';
+				} else {
+					$errorMessages [] = "$file cannot be uploaded. Acceptable file types: gif, jpg, png.";
+				}
+			}
+			
+			// Post the recipe to the database
+			if (count ( $errorMessages ) < 2) {
+				// Insert the data to the db
+				$mysql_query = "INSERT INTO recipes (recipe_name, recipe_date, recipe_ingredients, recipe_text, fb_id, fb_user_name, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+				$mysql_query_params = array (
+						$recipeName,
+						time (),
+						$ingredients,
+						$fullRecipe,
+						$user_id,
+						$user_name,
+						$image_location 
+				);
+				$success = db_query ( $mysql_query, $mysql_query_params );
+			}
+			// If $success is true, try to redirect to the correct recipe page
+			if ($success) {
+				header ( "Location: recipe-post.php?id=" . $success ["last_insert_id"] );
 			}
 		}
 		
-		if ($typeOK) {
-			switch ($_FILES ['uploadImg'] ['error']) {
-				case 0 :
-					// $username would normally come from a session variable
-					$username = $user_id;
-					// if the user's subfolder doesn't exist yet, create it
-					if (! is_dir ( UPLOAD_DIR . $username )) {
-						mkdir ( UPLOAD_DIR . $username );
-					}
-					// check if a file of the same name has been uploaded
-					if (! file_exists ( UPLOAD_DIR . $username . '/' . $file )) {
-						// move the file to the upload folder and rename it
-						$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $file );
-						$image_location = UPLOAD_DIR . $username . '/' . $file;
-					} else {
-						// get the date and time
-						ini_set ( 'date.timezone', 'Europe/London' );
-						$now = date ( 'Y-m-d-His' );
-						$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $now . $file );
-						$image_location = UPLOAD_DIR . $username . '/' . $now . $file;
-					}
-					if (! $success) {
-						$errorMessages [] = "Error uploading $file. Please try again.";
-					}
-					break;
-				case 3 :
-					$errorMessages [] = "Error uploading $file. Please try again.";
-				default :
-					$errorMessages [] = "System error uploading $file. Contact webmaster.";
-			}
-		} elseif ($_FILES ['uploadImg'] ['error'] == 4) {
-			$errorMessages [] = 'No file selected';
-		} else {
-			$errorMessages [] = "$file cannot be uploaded. Acceptable file types: gif, jpg, png.";
-		}
-	}
+		break;
 	
-	// Post the recipe to the database
-	if (count ( $errorMessages ) < 2) {
-		// Insert the data to the db
-		$mysql_query = "INSERT INTO recipes (recipe_name, recipe_date, recipe_ingredients, recipe_text, fb_id, fb_user_name, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		$mysql_query_params = array (
-				$recipeName,
-				time (),
-				$ingredients,
-				$fullRecipe,
-				$user_id,
-				$user_name,
-				$image_location 
-		);
-		$success = db_query ( $mysql_query, $mysql_query_params );
-	}
-	// If $success is true, try to redirect to the correct recipe page
-	if ($success) {
-		header ( "Location: recipe-post.php?id=" . $success ["last_insert_id"] );
-	}
+	case "delete" :
+		
+		// Delete the data from the db
+		if ($_REQUEST ["recipeID"]) {
+			
+			// Check if the recipe exists in the db first
+			$mysql_query = SPRINTF ( "SELECT * from recipes WHERE id=%d", $_REQUEST ["recipeID"] );
+			$mysql_res = mysql_query ( $mysql_query );
+			
+			if (num_rows ( $mysql_res )) {
+				
+				// Delete it
+				$mysql_query = "DELETE FROM recipes WHERE id=?)";
+				$mysql_query_params = array (
+						$recipeID 
+				);
+				$success = db_query ( $mysql_query, $mysql_query_params );
+				
+				// If $success is true, try to redirect to the correct recipe page
+				if ($success) {
+					header ( "Location: gallery.php " );
+				}
+			}
+		}
+		break;
+	
+	default :
+		
+		// Process everything below if form is posted
+		if (array_key_exists ( 'upload', $_POST )) {
+			if ($facebook) {
+				$user_profile = $facebook->api ( '/me' );
+			}
+			// Make a user name by taking user's first and last names from their Facebook profile
+			$user_name = $user_profile ["first_name"] . " " . $user_profile ["last_name"];
+			$user_id = $user_profile ["id"];
+			
+			// Fetch the data from the form
+			$recipeName = $_POST ["selectRecipe"];
+			$ingredients = $_POST ["ingredients"];
+			$fullRecipe = $_POST ["fullRecipe"];
+			$uploadImg = $_FILES ["uploadImg"];
+			($_POST ["t&cCheckbox"]) ? ($agreedToTerms = 1) : ($agreedToTerms = 0);
+			
+			// Check if all input has been filled in
+			$errorMessages = array ();
+			
+			if (empty ( $recipeName )) {
+				$errorMessages [] = "Please select the recipe you would like to upload.";
+			}
+			
+			if (empty ( $ingredients )) {
+				$errorMessages [] = "Please type in all ingredients needed to prepare the recipe with.";
+			}
+			
+			if (empty ( $fullRecipe )) {
+				$errorMessages [] = "Please type the full recipe.";
+			}
+			
+			if (! $_FILES ["uploadImg"]) {
+				$errorMessages [] = "An image is required to post your recipe.";
+			}
+			
+			if ($agreedToTerms == 0) {
+				$errorMessages [] = "Please read the terms and conditions and tick the relevant box before continuing.";
+			}
+			
+			// Setup file upload
+			if (array_key_exists ( 'uploadImg', $_FILES )) {
+				// define constant for upload folder
+				define ( 'UPLOAD_DIR', 'img_uploads/' );
+				// replace any spaces in original filename with underscores
+				// at the same time, assign to a simpler variable
+				$file = str_replace ( ' ', '_', $_FILES ['uploadImg'] ['name'] );
+				// create an array of permitted MIME types
+				$permitted = array (
+						'image/gif',
+						'image/jpeg',
+						'image/pjpeg',
+						'image/png' 
+				);
+				// begin by assuming the file is unacceptable
+				$typeOK = false;
+				
+				// check that file is of an permitted MIME type
+				foreach ( $permitted as $type ) {
+					if ($type == $_FILES ['uploadImg'] ['type']) {
+						$typeOK = true;
+						break;
+					}
+				}
+				
+				if ($typeOK) {
+					switch ($_FILES ['uploadImg'] ['error']) {
+						case 0 :
+							// $username would normally come from a session variable
+							$username = $user_id;
+							// if the user's subfolder doesn't exist yet, create it
+							if (! is_dir ( UPLOAD_DIR . $username )) {
+								mkdir ( UPLOAD_DIR . $username );
+							}
+							// check if a file of the same name has been uploaded
+							if (! file_exists ( UPLOAD_DIR . $username . '/' . $file )) {
+								// move the file to the upload folder and rename it
+								$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $file );
+								$image_location = UPLOAD_DIR . $username . '/' . $file;
+							} else {
+								// get the date and time
+								ini_set ( 'date.timezone', 'Europe/London' );
+								$now = date ( 'Y-m-d-His' );
+								$success = move_uploaded_file ( $_FILES ['uploadImg'] ['tmp_name'], UPLOAD_DIR . $username . '/' . $now . $file );
+								$image_location = UPLOAD_DIR . $username . '/' . $now . $file;
+							}
+							if (! $success) {
+								$errorMessages [] = "Error uploading $file. Please try again.";
+							}
+							break;
+						case 3 :
+							$errorMessages [] = "Error uploading $file. Please try again.";
+						default :
+							$errorMessages [] = "System error uploading $file. Contact webmaster.";
+					}
+				} elseif ($_FILES ['uploadImg'] ['error'] == 4) {
+					$errorMessages [] = 'No file selected';
+				} else {
+					$errorMessages [] = "$file cannot be uploaded. Acceptable file types: gif, jpg, png.";
+				}
+			}
+			
+			// Post the recipe to the database
+			if (count ( $errorMessages ) < 2) {
+				// Insert the data to the db
+				$mysql_query = "INSERT INTO recipes (recipe_name, recipe_date, recipe_ingredients, recipe_text, fb_id, fb_user_name, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
+				$mysql_query_params = array (
+						$recipeName,
+						time (),
+						$ingredients,
+						$fullRecipe,
+						$user_id,
+						$user_name,
+						$image_location 
+				);
+				$success = db_query ( $mysql_query, $mysql_query_params );
+			}
+			// If $success is true, try to redirect to the correct recipe page
+			if ($success) {
+				header ( "Location: recipe-post.php?id=" . $success ["last_insert_id"] );
+			}
+		}
+		
+		break;
 }
 ?>
 <!DOCTYPE html>
