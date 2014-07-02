@@ -22,7 +22,7 @@ foreach ( $row as $recipe ) {
 <body>
 	<!-- Navigation -->
 	<nav class="navbar navbar-default" role="navigation">
-		<divclass"container">
+		<div class"container">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="index.html" title="Home">24KITCHEN</a>
 		</div>
